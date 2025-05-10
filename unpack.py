@@ -1,6 +1,7 @@
 import argparse
 import os
 from struct import unpack
+
 import age
 from age.cipher import DCPBlowfishCFB
 

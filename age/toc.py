@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from struct import unpack
-from typing import cast, Generator
+from typing import Generator
 from zlib import decompress
 
 
