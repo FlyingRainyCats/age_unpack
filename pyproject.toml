@@ -1,0 +1,13 @@
+[project]
+name = "age-unpack"
+version = "0.1.0"
+description = "AEG ebook unpacker"
+requires-python = ">=3.13"
+dependencies = [
+    "pycryptodome>=3.22.0",
+]
+
+[dependency-groups]
+dev = [
+    "black>=25.1.0",
+]
