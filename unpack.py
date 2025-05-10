@@ -43,9 +43,13 @@ def main():
                 print("warn: cipher value mismatch")
                 continue
 
-            print(f"dump {file.name} (len={file.length})...")
+            print(f"dump {file.name} (len={file.enc_len})...")
             with open(out_path, "wb") as out_f:
-                cipher.decrypt_stream(out_f, f, file.length)
+                cipher.decrypt_stream(out_f, f, file.enc_len)
+
+                copy_len = file.full_len - file.enc_len - 12
+                if copy_len > 0:
+                    out_f.write(f.read(copy_len))
 
 
 if __name__ == "__main__":
