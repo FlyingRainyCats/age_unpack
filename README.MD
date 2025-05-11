@@ -1,4 +1,6 @@
-# AEG 电子书解包
+# AGE-Unpack
+
+一个用于解包「雅致 Flash 打包工具 (AGE Flash Packer)」打包的可执行文件的脚本。
 
 ## 快速使用
 
