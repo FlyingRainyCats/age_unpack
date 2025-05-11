@@ -7,9 +7,13 @@ from zlib import decompress
 @dataclass
 class TocEntry:
     offset: int
-    enc_len: int
-    full_len: int
+    enc_size: int
+    size: int
     name: str
+
+    @property
+    def has_encrypted_header(self):
+        return self.enc_size > 0
 
 
 def parse(zlib_toc: bytes) -> Generator[TocEntry, None, None]:
@@ -17,12 +21,12 @@ def parse(zlib_toc: bytes) -> Generator[TocEntry, None, None]:
 
     offset = 0
     while offset + 14 < len(data):
-        data_offset, unk, data_len, name_len = unpack(
-            "<IIIH", data[offset : offset + 14]
+        data_offset, full_size, enc_size, name_len = unpack(
+            "<IIiH", data[offset : offset + 14]
         )
         offset += 14
 
         name = data[offset : offset + name_len].decode("utf-8")
         offset += name_len
 
-        yield TocEntry(offset=data_offset, enc_len=data_len, full_len=unk, name=name)
+        yield TocEntry(offset=data_offset, enc_size=enc_size, size=full_size, name=name)

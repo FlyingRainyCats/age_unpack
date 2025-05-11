@@ -34,21 +34,26 @@ def main():
             os.makedirs(os.path.dirname(out_path), exist_ok=True)
 
             f.seek(file.offset, os.SEEK_SET)
-            type_id, test_cipher, test_plain = unpack("<I4s4s", f.read(12))
-            if type_id != 5:
-                print(f"warn: unknown cipher id: {type_id}")
-                continue
-            cipher = DCPBlowfishCFB.from_aeg()
-            cipher_ok = cipher.decrypt(test_cipher) == test_plain
-            if not cipher_ok:
-                print("warn: cipher value mismatch")
-                continue
-
-            print(f"dump {file.name} (len={file.enc_len})...")
             with open(out_path, "wb") as out_f:
-                cipher.decrypt_stream(out_f, f, file.enc_len)
+                if file.has_encrypted_header:
+                    type_id, test_cipher, test_plain = unpack("<I4s4s", f.read(12))
+                    if type_id != 5:
+                        print(f"warn: unknown cipher id: {type_id}")
+                        continue
+                    cipher = DCPBlowfishCFB.from_aeg()
+                    cipher_ok = cipher.decrypt(test_cipher) == test_plain
+                    if not cipher_ok:
+                        print("warn: cipher value mismatch")
+                        continue
 
-                copy_len = file.full_len - file.enc_len - 12
+                    print(
+                        f"dump {file.name} (size={file.size}, enc={file.enc_size}, offset=0x{file.offset:08x})..."
+                    )
+                    cipher.decrypt_stream(out_f, f, file.enc_size)
+                    copy_len = file.size - file.enc_size - 12
+                else:
+                    print(f"copy {file.name} (len={file.size})...")
+                    copy_len = file.size
                 if copy_len > 0:
                     out_f.write(f.read(copy_len))
 
