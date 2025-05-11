@@ -60,6 +60,6 @@ class DCPBlowfishCFB:
 
     def decrypt_stream(self, s_out: BytesIO, s_in: BytesIO, n: int):
         while n > 0:
-            data = s_in.read(max(n, 0x2000))
+            data = s_in.read(min(n, 0x2000))
             n -= len(data)
             s_out.write(self.decrypt(data))
