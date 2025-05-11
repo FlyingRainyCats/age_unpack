@@ -3,11 +3,7 @@ from io import BytesIO
 
 from Crypto.Cipher import Blowfish
 
-key_id = b"AGE Flash Player"
-
-
-def sha1(data: bytes) -> bytes:
-    return hashlib.sha1(data).digest()
+_AGE_KEY = hashlib.sha1(b"AGE Flash Player").digest()
 
 
 class DCPBlowfishCFB:
@@ -22,7 +18,7 @@ class DCPBlowfishCFB:
 
     @staticmethod
     def from_aeg():
-        return DCPBlowfishCFB(sha1(key_id))
+        return DCPBlowfishCFB(_AGE_KEY)
 
     def decrypt(self, ciphertext: bytes) -> bytes:
         n = len(ciphertext)
