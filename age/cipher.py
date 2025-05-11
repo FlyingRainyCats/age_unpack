@@ -1,5 +1,6 @@
 import hashlib
-from io import BytesIO
+from struct import unpack
+from typing import IO
 
 from Crypto.Cipher import Blowfish
 
@@ -17,8 +18,16 @@ class DCPBlowfishCFB:
         return bytes((a[i] ^ b[i]) for i in range(n))
 
     @staticmethod
-    def from_aeg():
-        return DCPBlowfishCFB(_AGE_KEY)
+    def create_from_header(header: bytes):
+        type_id, test_cipher, test_plain = unpack("<I4s4s", header[:12])
+        if type_id != 5:
+            raise RuntimeError(f"Unsupported cipher id: {type_id}")
+
+        cipher = DCPBlowfishCFB(_AGE_KEY)
+        cipher_ok = cipher.decrypt(test_cipher) == test_plain
+        if not cipher_ok:
+            raise RuntimeError(f"Cipher not matching: {test_cipher.hex()} != {test_plain.hex()}")
+        return cipher
 
     def decrypt(self, ciphertext: bytes) -> bytes:
         n = len(ciphertext)
@@ -58,7 +67,7 @@ class DCPBlowfishCFB:
 
         return bytes(out)
 
-    def decrypt_stream(self, s_out: BytesIO, s_in: BytesIO, n: int):
+    def decrypt_stream(self, s_out: IO[bytes], s_in: IO[bytes], n: int):
         while n > 0:
             data = s_in.read(min(n, 0x2000))
             n -= len(data)
