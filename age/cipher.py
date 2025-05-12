@@ -48,16 +48,14 @@ class DCPBlowfishCFB:
         return bytes(out)
 
     def encrypt(self, plaintext: bytes) -> bytes:
-        """未测试"""
         n = len(plaintext)
         out = bytearray(n)
         offset = 0
         while n >= 8:
-            block = plaintext[offset : offset + 8]
+            plain_slice = plaintext[offset : offset + 8]
             temp = self._ecb.encrypt(self.iv)
-            temp = self._xor_bytes(temp, block, 8)
-            out[offset : offset + 8] = temp
-            self.iv = temp
+            temp = self._xor_bytes(temp, plain_slice, 8)
+            self.iv = out[offset : offset + 8] = temp
             offset += 8
             n -= 8
 
